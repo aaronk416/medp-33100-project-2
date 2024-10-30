@@ -17,7 +17,7 @@
 - List the technologies and tools used in the project:
     - APIs
     - Libraries
-    - Other
+    - D3
  
 ## **Live Demo**
 
