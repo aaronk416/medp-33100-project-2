@@ -1,15 +1,17 @@
 ## **Project Overview**
 
-- Briefly describe the concept of your project.
+- This website will be able to display data about popular tv shows/movies, and can filter it by different attributes such as ratings, the date is released, the genre, etc.
 
 ## **Project Members**
 
-- List the people a part of this group.
+- Aaron Kim
+- Ziyu Wang
 
 ## **Features**
 
-- List the key features of the project (the three distinct types of user interactions).
-
+- Filtering
+- Sorting
+- Changing data presentation
 ## **Technologies Used**
 
 - List the technologies and tools used in the project:
