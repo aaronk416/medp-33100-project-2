@@ -1,3 +1,4 @@
+/* General styles for the page */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
@@ -56,46 +57,49 @@ header {
 }
 
 .genre-btn {
-    margin: 5px;
-    padding: 10px 15px;
-    border: none;
-    background: #dedede;
-    color: black;
-    cursor: pointer;
-    border-radius: 5px;
+  padding: 10px 20px;
+  background-color: #ccc;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
 }
 
 .genre-btn.selected {
-    background: #b2b2b2;
+  background-color: #007bff;
+  color: white;
 }
 
-#movieContainer {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 20px;
-    flex: 3;
+#chart {
+  width: 100%;
+  height: 100%;
 }
 
-.movie-card {
-    background: white;
-    border-radius: 5px;
-    padding: 10px;
-    text-align: center;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+.tooltip {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  background-color: white;
+  border: solid 1px #ccc;
+  border-radius: 5px;
+  padding: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-.movie-card img {
-    max-width: 100%;
-    border-radius: 5px;
+svg {
+  width: 100%;
+  height: 100%;
 }
 
-.movie-title {
-    font-weight: bold;
-    margin-top: 10px;
+.axis path,
+.axis line {
+  fill: none;
+  shape-rendering: crispEdges;
 }
 
-.movie-year {
-    color: #666;
+.axis text {
+  font-size: 14px;
+  font-weight: bold;
 }
 
 .error {
