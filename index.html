@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Movie Filter App</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
 </head>
 <body>
     <header>
@@ -13,7 +15,6 @@
     <main class="container">
         <aside class="filters">
             <h2>Filters</h2>
-
             <!-- Sorting Dropdown -->
             <div class="filter-group">
                 <label for="sortSelect">Sorting</label>
@@ -42,7 +43,6 @@
                     <button type="button" class="genre-btn" data-genre="10749">Romance</button>
                     <button type="button" class="genre-btn" data-genre="878">Science Fiction</button>
                     <button type="button" class="genre-btn" data-genre="53">Thriller</button>
-                    <button type="button" class="genre-btn" data-genre="war">War</button>
                 </div>
             </div>
 
@@ -81,6 +81,20 @@
 
         <section id="movieContainer" class="movie-grid"></section>
     </main>
+
+    <!-- Movie Ratings Over Time (Chart Section) -->
+    <section class="chart-section">
+        <h2>Movie Data Visualization</h2>
+        <div class="chart-genre-buttons">
+            <button data-genre="28" class="chart-genre-btn">Action</button>
+            <button data-genre="12" class="chart-genre-btn">Adventure</button>
+            <button data-genre="35" class="chart-genre-btn">Comedy</button>
+            <button data-genre="99" class="chart-genre-btn">Documentary</button>
+            <button data-genre="27" class="chart-genre-btn">Horror</button>
+        </div>
+        <canvas id="ratingsChart"></canvas> <!-- The chart will be displayed here -->
+    </section>
+
     <script src="script.js"></script>
 </body>
 </html>

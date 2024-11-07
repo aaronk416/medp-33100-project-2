@@ -85,3 +85,29 @@ header {
     text-align: center;
     padding: 20px;
 }
+
+.chart-section {
+    margin-top: 40px; /* Space between sections */
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.chart-genre-buttons {
+    margin-bottom: 20px;
+}
+
+.chart-genre-btn {
+    margin: 5px;
+    padding: 10px 15px;
+    border: none;
+    background: #dedede;
+    color: black;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.movie-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+}
