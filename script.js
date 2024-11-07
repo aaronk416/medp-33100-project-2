@@ -1,245 +1,171 @@
-const apiKey = '802ee322c8121a46593708eaee31a51d';
+const apiKey = "802ee322c8121a46593708eaee31a51d";
+let selectedGenre = "35"; // Default to Comedy
+let sortOption = "budgetAsc"; // Default sorting option
 
-let selectedGenres = ['35']; // Comedy genre ID
+const width = 1200;
+const height = 800;
+const margin = { top: 20, right: 30, bottom: 40, left: 40 };
 
-// Handle genre button clicks
-document.querySelectorAll('.genre-btn').forEach(button => {
-    button.addEventListener('click', (event) => {
-        const genreId = event.target.getAttribute('data-genre');
-        if (selectedGenres.includes(genreId)) {
-            selectedGenres = selectedGenres.filter(id => id !== genreId);
-            event.target.classList.remove('selected');
-        } else {
-            selectedGenres.push(genreId);
-            event.target.classList.add('selected');
-        }
-        fetchAndDisplayMovies();  // Update the movie display and chart when a genre is selected
-    });
+const svg = d3
+  .select("#chart")
+  .append("svg")
+  .attr("width", width)
+  .attr("height", height);
+
+const xScale = d3.scaleLinear().range([margin.left, width - margin.right]);
+const yScale = d3.scaleLinear().range([height - margin.bottom, margin.top]);
+
+const xAxis = svg
+  .append("g")
+  .attr("transform", `translate(0, ${height - margin.bottom})`);
+const yAxis = svg.append("g").attr("transform", `translate(${margin.left}, 0)`);
+
+// Tooltip setup
+const tooltip = d3
+  .select("#chart")
+  .append("div")
+  .style("opacity", 0)
+  .attr("class", "tooltip")
+  .style("background-color", "white")
+  .style("border", "solid")
+  .style("border-width", "1px")
+  .style("border-radius", "5px")
+  .style("padding", "10px");
+
+// Hover functions
+const mouseover = function (event, d) {
+  tooltip.style("opacity", 1);
+};
+
+const mousemove = function (event, d) {
+  tooltip
+    .html(
+      `Title: ${
+        d.title
+      }<br>Budget: $${d.budget.toLocaleString()}<br>Revenue: $${d.revenue.toLocaleString()}`
+    )
+    .style("left", event.pageX + 10 + "px")
+    .style("top", event.pageY - 10 + "px");
+};
+
+const mouseleave = function () {
+  tooltip.transition().duration(200).style("opacity", 0);
+};
+
+// Function to filter by genre
+document.querySelectorAll(".genre-btn").forEach((button) => {
+  button.addEventListener("click", (event) => {
+    selectedGenre = event.target.getAttribute("data-genre");
+    document
+      .querySelectorAll(".genre-btn")
+      .forEach((btn) => btn.classList.remove("selected"));
+    event.target.classList.add("selected");
+    updateChart();
+  });
 });
 
-// Fetch movies from TMDb API
+// Sorting function
+function sortData(data, sortOption) {
+  switch (sortOption) {
+    case "budgetAsc":
+      return data.sort((a, b) => a.budget - b.budget);
+    case "budgetDesc":
+      return data.sort((a, b) => b.budget - a.budget);
+    case "revenueAsc":
+      return data.sort((a, b) => a.revenue - b.revenue);
+    case "revenueDesc":
+      return data.sort((a, b) => b.revenue - a.revenue);
+    default:
+      return data;
+  }
+}
+
 async function fetchMovies() {
-    let url = `https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&language=en-US&sort_by=${document.getElementById('sortSelect').value}&page=1`;
+  const startYear = 1960;
+  const endYear = 2020;
+  const totalPages = 5;
+  const allMovies = [];
 
-    if (selectedGenres.length > 0) {
-        url += `&with_genres=${selectedGenres.join(',')}`;
-    }
-
-    const language = document.getElementById('languageSelect').value;
-    if (language) {
-        url += `&with_original_language=${language}`;
-    }
-
-    const releaseYearStart = document.getElementById('releaseYearStart').value;
-    const releaseYearEnd = document.getElementById('releaseYearEnd').value;
-    if (releaseYearStart) {
-        url += `&primary_release_date.gte=${releaseYearStart}-01-01`;
-    }
-    if (releaseYearEnd) {
-        url += `&primary_release_date.lte=${releaseYearEnd}-12-31`;
-    }
-
-    const runtimeStart = document.getElementById('runtimeStart').value;
-    const runtimeEnd = document.getElementById('runtimeEnd').value;
-    if (runtimeStart) {
-        url += `&with_runtime.gte=${runtimeStart}`;
-    }
-    if (runtimeEnd) {
-        url += `&with_runtime.lte=${runtimeEnd}`;
-    }
+  for (let page = 1; page <= totalPages; page++) {
+    const url = `https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&language=en-US&primary_release_date.gte=${startYear}-01-01&primary_release_date.lte=${endYear}-12-31&with_genres=${selectedGenre}&page=${page}`;
 
     try {
-        const response = await fetch(url);
-        if (!response.ok) {
-            throw new Error('Failed to fetch movies');
-        }
-        const data = await response.json();
-        return data.results;
-    } catch (error) {
-        console.error(error);
-        return [];
-    }
-}
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
+      const data = await response.json();
 
-// Display movies in grid
-function displayMovies(movies) {
-    const container = document.getElementById('movieContainer');
-    container.innerHTML = '';
+      // Fetch details for each movie to get both budget and revenue
+      for (let movie of data.results) {
+        const movieDetailsUrl = `https://api.themoviedb.org/3/movie/${movie.id}?api_key=${apiKey}&language=en-US`;
+        const movieDetailsResponse = await fetch(movieDetailsUrl);
+        if (!movieDetailsResponse.ok)
+          throw new Error(`API Error: ${movieDetailsResponse.statusText}`);
+        const movieDetails = await movieDetailsResponse.json();
 
-    if (movies.length === 0) {
-        container.innerHTML = '<p class="error">No movies found with the selected filters.</p>';
-        return;
-    }
-
-    movies.forEach(movie => {
-        const movieCard = document.createElement('div');
-        movieCard.classList.add('movie-card');
-
-        const imgSrc = movie.poster_path
-            ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-            : 'https://via.placeholder.com/500x750?text=No+Image';
-
-        movieCard.innerHTML = `
-            <img src="${imgSrc}" alt="${movie.title}">
-            <div class="movie-title">${movie.title}</div>
-            <div class="movie-year">${movie.release_date.split('-')[0]}</div>
-        `;
-        container.appendChild(movieCard);
-    });
-}
-
-// Handle apply filters button click
-document.getElementById('applyFilters').addEventListener('click', async () => {
-    const loadingIndicator = document.getElementById('loading');
-    if (loadingIndicator) {
-        loadingIndicator.style.display = 'block'; // Show loading indicator
-    }
-    const movies = await fetchMovies();
-    if (loadingIndicator) {
-        loadingIndicator.style.display = 'none'; // Hide loading indicator after fetching
-    }
-    displayMovies(movies);
-    updateChart(movies); // Update the chart with filtered movies
-});
-
-// Chart section logic
-async function updateChart(movies = []) {
-    if (movies.length === 0) {
-        movies = await fetchMovies();  // Fetch data if no movies are passed
-    }
-
-    // Default to comedy genre (genre ID 35)
-    const comedyMovies = movies.filter(movie => movie.genre_ids.includes(35));
-
-    const decadeMovies = {};
-    comedyMovies.forEach((movie) => {
-        const decade = Math.floor(Number(movie.release_date.split('-')[0]) / 10) * 10; // Group by decade
-        if (!decadeMovies[decade]) {
-            decadeMovies[decade] = [];
-        }
-        decadeMovies[decade].push(movie);
-    });
-
-    const chartData = [];
-    Object.keys(decadeMovies).forEach((decade) => {
-        decadeMovies[decade].forEach((movie) => {
-            chartData.push({
-                decade: decade,
-                year: movie.release_date.split('-')[0],
-                rating: movie.vote_average,
-            });
+        allMovies.push({
+          title: movie.title,
+          budget: movieDetails.budget, // Fetching budget
+          revenue: movieDetails.revenue, // Fetching revenue
         });
-    });
+      }
+    } catch (error) {
+      console.error("Fetch error:", error);
+      return [];
+    }
+  }
 
-    const xScale = d3.scaleBand().range([0, 600]).padding(0.1);
-    const yScale = d3.scaleLinear().range([400, 0]);
-
-    const svg = d3.select('#ratingsChart').attr('width', 800).attr('height', 400);
-
-    xScale.domain(chartData.map(d => d.decade));
-    yScale.domain([0, 10]);
-
-    svg.selectAll('*').remove(); // Clear previous chart
-
-    // Add axes
-    svg.append('g')
-        .attr('transform', 'translate(0, 400)')
-        .call(d3.axisBottom(xScale));
-
-    svg.append('g').call(d3.axisLeft(yScale));
-
-    // Plot data as circles
-    const dots = svg.selectAll('circle').data(chartData);
-
-    dots.enter()
-        .append('circle')
-        .attr('cx', d => xScale(d.decade) + 30)
-        .attr('cy', d => yScale(d.rating))
-        .attr('r', 5)
-        .attr('fill', 'blue')
-        .merge(dots)
-        .transition()
-        .duration(500)
-        .attr('cx', d => xScale(d.decade) + 30)
-        .attr('cy', d => yScale(d.rating));
-
-    dots.exit().remove();
+  console.log(allMovies); // Log the fetched movies data
+  return allMovies;
 }
 
-// Initial movie load (with comedy genre as default)
-async function initialLoad() {
-    const movies = await fetchMovies();
-    displayMovies(movies);
-    updateChart(movies);  // Default to comedy genre on first load
+async function updateChart() {
+  const movies = await fetchMovies();
+
+  // Filter out movies with missing budget or revenue values
+  const chartData = movies.filter(
+    (movie) => movie.budget > 0 && movie.revenue > 0
+  );
+
+  console.log("Filtered Data:", chartData); // Log filtered data to check
+
+  // Sort the data based on selected sorting option
+  const sortedData = sortData(chartData, sortOption);
+
+  console.log("Sorted Data:", sortedData); // Log the sorted data to check
+
+  // Update scales based on sorted data
+  xScale.domain([0, d3.max(sortedData, (d) => d.budget)]);
+  yScale.domain([0, d3.max(sortedData, (d) => d.revenue)]);
+
+  xAxis.call(d3.axisBottom(xScale).ticks(5).tickFormat(d3.format("$,.0f")));
+  yAxis.call(d3.axisLeft(yScale).ticks(5).tickFormat(d3.format("$,.0f")));
+
+  // Create or update the scatterplot dots
+  const dots = svg.selectAll("circle").data(sortedData, (d) => d.title);
+
+  dots
+    .enter()
+    .append("circle")
+    .attr("cx", (d) => xScale(d.budget))
+    .attr("cy", (d) => yScale(d.revenue))
+    .attr("r", 5)
+    .attr("fill", "black")
+    .on("mouseover", mouseover)
+    .on("mousemove", mousemove)
+    .on("mouseleave", mouseleave)
+    .merge(dots)
+    .transition()
+    .duration(500)
+    .attr("cx", (d) => xScale(d.budget))
+    .attr("cy", (d) => yScale(d.revenue));
+
+  dots.exit().remove();
 }
 
-initialLoad();  // Run the initial load to display default data
-
-// Default data for chart (e.g., comedy genre movies)
-const defaultChartData = [
-    { decade: 2000, rating: 6.8 },
-    { decade: 2010, rating: 7.2 },
-    { decade: 2020, rating: 7.5 }
-];
-
-// Set up the chart initially with default data
-function setupChart(data) {
-    const svg = d3.select('#ratingsChart')
-        .attr('width', 800)
-        .attr('height', 400);
-
-    const xScale = d3.scaleBand().range([0, 600]).padding(0.1);
-    const yScale = d3.scaleLinear().range([400, 0]);
-
-    // Set domain for x and y scales
-    xScale.domain(data.map(d => d.decade));
-    yScale.domain([0, 10]);
-
-    // Clear previous chart content
-    svg.selectAll('*').remove();
-
-    // Add axes
-    svg.append('g')
-        .attr('transform', 'translate(0, 400)')
-        .call(d3.axisBottom(xScale));
-
-    svg.append('g').call(d3.axisLeft(yScale));
-
-    // Plot data as circles
-    const dots = svg.selectAll('circle').data(data);
-
-    dots.enter()
-        .append('circle')
-        .attr('cx', d => xScale(d.decade) + 30)
-        .attr('cy', d => yScale(d.rating))
-        .attr('r', 5)
-        .attr('fill', 'blue')
-        .merge(dots)
-        .transition()
-        .duration(500)
-        .attr('cx', d => xScale(d.decade) + 30)
-        .attr('cy', d => yScale(d.rating));
-
-    dots.exit().remove();
-}
-
-// Button click handler to apply filters to the chart
-document.getElementById('applyChartFilters').addEventListener('click', () => {
-    // Get the filter values (for example, user might want to filter by decade or rating)
-    const selectedDecade = document.getElementById('decadeSelect').value;
-    const selectedRating = document.getElementById('ratingSelect').value;
-
-    // Example: Update the chart data based on selected filters
-    let filteredData = defaultChartData.filter(d => {
-        const decadeMatch = selectedDecade ? d.decade === parseInt(selectedDecade) : true;
-        const ratingMatch = selectedRating ? d.rating >= parseFloat(selectedRating) : true;
-        return decadeMatch && ratingMatch;
-    });
-
-    // Update the chart with filtered data
-    setupChart(filteredData);
+// Update chart when sorting option changes
+document.getElementById("sortBy").addEventListener("change", (event) => {
+  sortOption = event.target.value;
+  updateChart();
 });
 
-// Initial chart load with default data
-setupChart(defaultChartData);
-
+updateChart();

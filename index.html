@@ -1,100 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Movie Filter App</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Movie Budget vs Revenue Scatter Plot</title>
+    <link rel="stylesheet" href="styles.css" />
+    <!-- Link to the external CSS file -->
+  </head>
+  <body>
+    <div id="chart-container">
+      <div id="filters">
+        <button class="genre-btn selected" data-genre="35">Comedy</button>
+        <button class="genre-btn" data-genre="28">Action</button>
+        <button class="genre-btn" data-genre="18">Drama</button>
+        <!-- Add more genre buttons as needed -->
+      </div>
+      <div id="chart"></div>
+    </div>
+    <div id="controls">
+      <select id="sortBy" onchange="updateChart()">
+        <option value="budgetAsc">Sort by Budget (Ascending)</option>
+        <option value="budgetDesc">Sort by Budget (Descending)</option>
+        <option value="revenueAsc">Sort by Revenue (Ascending)</option>
+        <option value="revenueDesc">Sort by Revenue (Descending)</option>
+      </select>
+    </div>
+
     <script src="https://d3js.org/d3.v7.min.js"></script>
-</head>
-<body>
-    <header>
-        <h1>Movie Filter</h1>
-    </header>
-    <main class="container">
-        <aside class="filters">
-            <h2>Filters</h2>
-            <!-- Sorting Dropdown -->
-            <div class="filter-group">
-                <label for="sortSelect">Sorting</label>
-                <select id="sortSelect">
-                    <option value="popularity.desc">Popularity: High to Low</option>
-                    <option value="popularity.asc">Popularity: Low to High</option>
-                    <option value="vote_average.desc">Rating: High to Low</option>
-                    <option value="vote_average.asc">Rating: Low to High</option>
-                    <option value="release_date.desc">Most Recent</option>
-                </select>
-            </div>
-
-            <!-- Genre -->
-            <div class="filter-group">
-                <label>Genre</label>
-                <div class="genre-buttons">
-                    <button type="button" class="genre-btn" data-genre="28">Action</button>
-                    <button type="button" class="genre-btn" data-genre="12">Adventure</button>
-                    <button type="button" class="genre-btn" data-genre="16">Animation</button>
-                    <button type="button" class="genre-btn" data-genre="35">Comedy</button>
-                    <button type="button" class="genre-btn" data-genre="80">Crime</button>
-                    <button type="button" class="genre-btn" data-genre="10751">Family</button>
-                    <button type="button" class="genre-btn" data-genre="14">Fantasy</button>
-                    <button type="button" class="genre-btn" data-genre="36">History</button>
-                    <button type="button" class="genre-btn" data-genre="27">Horror</button>
-                    <button type="button" class="genre-btn" data-genre="10749">Romance</button>
-                    <button type="button" class="genre-btn" data-genre="878">Science Fiction</button>
-                    <button type="button" class="genre-btn" data-genre="53">Thriller</button>
-                </div>
-            </div>
-
-            <!-- Language -->
-            <div class="filter-group">
-                <label for="languageSelect">Language</label>
-                <select id="languageSelect">
-                    <option value="en">English</option>
-                    <option value="es">Spanish</option>
-                    <option value="fr">French</option>
-                    <option value="zh">Mandarin</option>
-                    <option value="cn">Cantonese</option>
-                    <option value="ja">Japanese</option>
-                    <option value="ko">Korean</option>
-                </select>
-            </div>
-
-            <!-- Release Year -->
-            <div class="filter-group">
-                <label>Release Year</label>
-                <br>
-                <input type="number" id="releaseYearStart" placeholder="From" min="1900" max="2100">
-                <input type="number" id="releaseYearEnd" placeholder="To" min="1900" max="2100">
-            </div>
-
-            <!-- Runtime -->
-            <div class="filter-group">
-                <label>Runtime (minutes)</label>
-                <br>
-                <input type="number" id="runtimeStart" placeholder="From" min="0">
-                <input type="number" id="runtimeEnd" placeholder="To" min="0">
-            </div>
-
-            <button id="applyFilters">Apply Filters</button>
-        </aside>
-
-        <section id="movieContainer" class="movie-grid"></section>
-    </main>
-
-    <!-- Movie Ratings Over Time (Chart Section) -->
-    <section class="chart-section">
-        <h2>Movie Data Visualization</h2>
-        <div class="chart-genre-buttons">
-            <button data-genre="28" class="chart-genre-btn">Action</button>
-            <button data-genre="12" class="chart-genre-btn">Adventure</button>
-            <button data-genre="35" class="chart-genre-btn">Comedy</button>
-            <button data-genre="99" class="chart-genre-btn">Documentary</button>
-            <button data-genre="27" class="chart-genre-btn">Horror</button>
-        </div>
-        <canvas id="ratingsChart"></canvas> <!-- The chart will be displayed here -->
-    </section>
-
     <script src="script.js"></script>
-</body>
+    <!-- Link to the external JavaScript file -->
+  </body>
 </html>

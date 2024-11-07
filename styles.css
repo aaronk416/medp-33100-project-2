@@ -1,113 +1,224 @@
+const apiKey = "802ee322c8121a46593708eaee31a51d";
+let selectedGenre = "35"; // Default to Comedy
+
+const width = 1200;
+const height = 800;
+const margin = { top: 20, right: 30, bottom: 40, left: 40 };
+
+const svg = d3
+  .select("#chart")
+  .append("svg")
+  .attr("width", width)
+  .attr("height", height);
+
+const xScale = d3.scaleLinear().range([margin.left, width - margin.right]);
+const yScale = d3.scaleLinear().range([height - margin.bottom, margin.top]);
+
+const xAxis = svg
+  .append("g")
+  .attr("transform", translate(0, ${height - margin.bottom}));
+const yAxis = svg.append("g").attr("transform", translate(${margin.left}, 0));
+
+// Tooltip setup
+const tooltip = d3
+  .select("#chart")
+  .append("div")
+  .style("opacity", 0)
+  .attr("class", "tooltip")
+  .style("background-color", "white")
+  .style("border", "solid")
+  .style("border-width", "1px")
+  .style("border-radius", "5px")
+  .style("padding", "10px");
+
+// Hover functions
+const mouseover = function (event, d) {
+  tooltip.style("opacity", 1);
+};
+
+const mousemove = function (event, d) {
+  tooltip
+    .html(
+      Title: ${
+        d.title
+      }<br>Budget: $${d.budget.toLocaleString()}<br>Revenue: $${d.revenue.toLocaleString()}
+    )
+    .style("left", event.pageX + 10 + "px")
+    .style("top", event.pageY - 10 + "px");
+};
+
+const mouseleave = function () {
+  tooltip.transition().duration(200).style("opacity", 0);
+};
+
+// Function to filter by genre
+document.querySelectorAll(".genre-btn").forEach((button) => {
+  button.addEventListener("click", (event) => {
+    selectedGenre = event.target.getAttribute("data-genre");
+    document
+      .querySelectorAll(".genre-btn")
+      .forEach((btn) => btn.classList.remove("selected"));
+    event.target.classList.add("selected");
+    updateChart();
+  });
+});
+
+async function fetchMovies() {
+  const startYear = 1960;
+  const endYear = 2020;
+  const totalPages = 5;
+  const allMovies = [];
+
+  for (let page = 1; page <= totalPages; page++) {
+    const url = https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&language=en-US&primary_release_date.gte=${startYear}-01-01&primary_release_date.lte=${endYear}-12-31&with_genres=${selectedGenre}&page=${page};
+
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(API Error: ${response.statusText});
+      const data = await response.json();
+
+      // Fetch details for each movie to get both budget and revenue
+      for (let movie of data.results) {
+        const movieDetailsUrl = https://api.themoviedb.org/3/movie/${movie.id}?api_key=${apiKey}&language=en-US;
+        const movieDetailsResponse = await fetch(movieDetailsUrl);
+        if (!movieDetailsResponse.ok)
+          throw new Error(API Error: ${movieDetailsResponse.statusText});
+        const movieDetails = await movieDetailsResponse.json();
+
+        allMovies.push({
+          title: movie.title,
+          budget: movieDetails.budget, // Fetching budget
+          revenue: movieDetails.revenue, // Fetching revenue
+        });
+      }
+    } catch (error) {
+      console.error("Fetch error:", error);
+      return [];
+    }
+  }
+
+  console.log(allMovies); // Log the fetched movies data
+  return allMovies;
+}
+
+async function updateChart() {
+  const movies = await fetchMovies();
+
+  // Filter out movies with missing budget or revenue values
+  const chartData = movies.filter(
+    (movie) => movie.budget > 0 && movie.revenue > 0
+  );
+
+  console.log(chartData); // Log the processed data to check
+
+  // Set the domains for the scales
+  xScale.domain([0, d3.max(chartData, (d) => d.budget)]);
+  yScale.domain([0, d3.max(chartData, (d) => d.revenue)]);
+
+  xAxis.call(d3.axisBottom(xScale).ticks(5).tickFormat(d3.format("$,.0f")));
+  yAxis.call(d3.axisLeft(yScale).ticks(5).tickFormat(d3.format("$,.0f")));
+
+  // Create the scatterplot dots
+  const dots = svg.selectAll("circle").data(chartData, (d) => d.title);
+
+  dots
+    .enter()
+    .append("circle")
+    .attr("cx", (d) => xScale(d.budget))
+    .attr("cy", (d) => yScale(d.revenue))
+    .attr("r", 5)
+    .attr("fill", "black")
+    .on("mouseover", mouseover)
+    .on("mousemove", mousemove)
+    .on("mouseleave", mouseleave)
+    .merge(dots)
+    .transition()
+    .duration(500)
+    .attr("cx", (d) => xScale(d.budget))
+    .attr("cy", (d) => yScale(d.revenue));
+
+  dots.exit().remove();
+}
+
+updateChart();
+
+/* General styles for the page */
 body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f4f4f4;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f4f4f4;
 }
 
-header {
-    background-color: #333;
-    color: #fff;
-    padding: 1rem;
-    text-align: center;
+#chart-container {
+  width: 1200px;
+  height: 850px;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.container {
-    display: flex;
-    max-width: 1200px;
-    margin: auto;
-    padding: 20px;
-}
-
-.filters {
-    flex: 1;
-    margin-right: 20px;
-    background: #fff;
-    padding: 20px;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.filter-group {
-    margin-bottom: 20px;
-}
-
-.genre-buttons {
-    display: flex;
-    flex-wrap: wrap;
+#filters {
+  margin-bottom: 20px;
+  display: flex;
+  gap: 10px;
 }
 
 .genre-btn {
-    margin: 5px;
-    padding: 10px 15px;
-    border: none;
-    background: #dedede;
-    color: black;
-    cursor: pointer;
-    border-radius: 5px;
+  padding: 10px 20px;
+  background-color: #ccc;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
 }
 
 .genre-btn.selected {
-    background: #b2b2b2;
+  background-color: #007bff;
+  color: white;
 }
 
-#movieContainer {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 20px;
-    flex: 3;
+#chart {
+  width: 100%;
+  height: 100%;
 }
 
-.movie-card {
-    background: white;
-    border-radius: 5px;
-    padding: 10px;
-    text-align: center;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+.tooltip {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  background-color: white;
+  border: solid 1px #ccc;
+  border-radius: 5px;
+  padding: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-.movie-card img {
-    max-width: 100%;
-    border-radius: 5px;
+svg {
+  width: 100%;
+  height: 100%;
 }
 
-.movie-title {
-    font-weight: bold;
-    margin-top: 10px;
+.axis path,
+.axis line {
+  fill: none;
+  shape-rendering: crispEdges;
 }
 
-.movie-year {
-    color: #666;
+.axis text {
+  font-size: 14px;
+  font-weight: bold;
 }
 
-.error {
-    color: red;
-    text-align: center;
-    padding: 20px;
-}
-
-.chart-section {
-    margin-top: 40px; /* Space between sections */
-    padding: 20px;
-    background-color: #fff;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.chart-genre-buttons {
-    margin-bottom: 20px;
-}
-
-.chart-genre-btn {
-    margin: 5px;
-    padding: 10px 15px;
-    border: none;
-    background: #dedede;
-    color: black;
-    cursor: pointer;
-    border-radius: 5px;
-}
-
-.movie-grid {
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+.axis-labels text {
+  font-size: 16px;
+  font-weight: bold;
 }
