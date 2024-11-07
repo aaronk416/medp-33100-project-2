@@ -97,6 +97,11 @@ body {
   .movie-year {
     color: #666;
   }
+
+  .movie-card img {
+    cursor: pointer;
+}
+
   
   .error {
     color: red;
