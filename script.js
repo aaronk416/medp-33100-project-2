@@ -102,144 +102,94 @@ document.getElementById('applyFilters').addEventListener('click', async () => {
     updateChart(movies); // Update the chart with filtered movies
 });
 
+
 // Chart section logic
 async function updateChart(movies = []) {
     if (movies.length === 0) {
         movies = await fetchMovies();  // Fetch data if no movies are passed
     }
 
-    // Default to comedy genre (genre ID 35)
+    // Filter for comedy movies (genre ID 35)
     const comedyMovies = movies.filter(movie => movie.genre_ids.includes(35));
 
-    const decadeMovies = {};
+    // Group movies by release year
+    const moviesByYear = {};
     comedyMovies.forEach((movie) => {
-        const decade = Math.floor(Number(movie.release_date.split('-')[0]) / 10) * 10; // Group by decade
-        if (!decadeMovies[decade]) {
-            decadeMovies[decade] = [];
+        const year = movie.release_date.split('-')[0]; // Extract the release year
+        if (!moviesByYear[year]) {
+            moviesByYear[year] = 0;
         }
-        decadeMovies[decade].push(movie);
+        moviesByYear[year]++;
     });
 
-    const chartData = [];
-    Object.keys(decadeMovies).forEach((decade) => {
-        decadeMovies[decade].forEach((movie) => {
-            chartData.push({
-                decade: decade,
-                year: movie.release_date.split('-')[0],
-                rating: movie.vote_average,
-            });
-        });
-    });
+    const chartData = Object.keys(moviesByYear).map((year) => ({
+        year: year,
+        count: moviesByYear[year],
+    }));
 
+    // Create xScale and yScale
     const xScale = d3.scaleBand().range([0, 600]).padding(0.1);
     const yScale = d3.scaleLinear().range([400, 0]);
 
-    const svg = d3.select('#ratingsChart').attr('width', 800).attr('height', 400);
+    const svg = d3.select('#ratingsChart').attr('width', 800).attr('height', 450); // Increased height for titles
 
-    xScale.domain(chartData.map(d => d.decade));
-    yScale.domain([0, 10]);
+    xScale.domain(chartData.map(d => d.year));
+    yScale.domain([0, d3.max(chartData, d => d.count)]);
 
     svg.selectAll('*').remove(); // Clear previous chart
 
-    // Add axes
+    // Add Chart Title
+    svg.append('text')
+        .attr('x', 200)
+        .attr('y', 60)
+        .attr('text-anchor', 'middle')
+        .style('font-size', '16px')
+        .style('font-weight', 'bold')
+        .text('Number of Comedy Movies Released');
+
+    // Add X-axis title
+    svg.append('text')
+        .attr('x', 400)
+        .attr('y', 440)
+        .attr('text-anchor', 'middle')
+        .style('font-size', '12px')
+        .text('Year');
+
+    // Add Y-axis title
+    svg.append('text')
+        .attr('transform', 'rotate(-90)')
+        .attr('x', -200)
+        .attr('y', 20)
+        .attr('text-anchor', 'middle')
+        .style('font-size', '12px')
+        .text('Number of Movies');
+
+    // Add X-axis
     svg.append('g')
         .attr('transform', 'translate(0, 400)')
         .call(d3.axisBottom(xScale));
 
-    svg.append('g').call(d3.axisLeft(yScale));
-
-    // Plot data as circles
-    const dots = svg.selectAll('circle').data(chartData);
-
-    dots.enter()
-        .append('circle')
-        .attr('cx', d => xScale(d.decade) + 30)
-        .attr('cy', d => yScale(d.rating))
-        .attr('r', 5)
-        .attr('fill', 'blue')
-        .merge(dots)
-        .transition()
-        .duration(500)
-        .attr('cx', d => xScale(d.decade) + 30)
-        .attr('cy', d => yScale(d.rating));
-
-    dots.exit().remove();
-}
-
-// Initial movie load (with comedy genre as default)
-async function initialLoad() {
-    const movies = await fetchMovies();
-    displayMovies(movies);
-    updateChart(movies);  // Default to comedy genre on first load
-}
-
-initialLoad();  // Run the initial load to display default data
-
-// Default data for chart (e.g., comedy genre movies)
-const defaultChartData = [
-    { decade: 2000, rating: 6.8 },
-    { decade: 2010, rating: 7.2 },
-    { decade: 2020, rating: 7.5 }
-];
-
-// Set up the chart initially with default data
-function setupChart(data) {
-    const svg = d3.select('#ratingsChart')
-        .attr('width', 800)
-        .attr('height', 400);
-
-    const xScale = d3.scaleBand().range([0, 600]).padding(0.1);
-    const yScale = d3.scaleLinear().range([400, 0]);
-
-    // Set domain for x and y scales
-    xScale.domain(data.map(d => d.decade));
-    yScale.domain([0, 10]);
-
-    // Clear previous chart content
-    svg.selectAll('*').remove();
-
-    // Add axes
+    // Add Y-axis with custom tick formatting (multiples of 5)
     svg.append('g')
-        .attr('transform', 'translate(0, 400)')
-        .call(d3.axisBottom(xScale));
+        .call(d3.axisLeft(yScale).ticks(d3.max(chartData, d => d.count) / 5));
 
-    svg.append('g').call(d3.axisLeft(yScale));
+    // Plot bars (representing number of movies per year)
+    const bars = svg.selectAll('rect').data(chartData);
 
-    // Plot data as circles
-    const dots = svg.selectAll('circle').data(data);
-
-    dots.enter()
-        .append('circle')
-        .attr('cx', d => xScale(d.decade) + 30)
-        .attr('cy', d => yScale(d.rating))
-        .attr('r', 5)
+    bars.enter()
+        .append('rect')
+        .attr('x', d => xScale(d.year))
+        .attr('y', d => yScale(d.count))
+        .attr('width', xScale.bandwidth())
+        .attr('height', d => 400 - yScale(d.count))
         .attr('fill', 'blue')
-        .merge(dots)
+        .merge(bars)
         .transition()
         .duration(500)
-        .attr('cx', d => xScale(d.decade) + 30)
-        .attr('cy', d => yScale(d.rating));
+        .attr('x', d => xScale(d.year))
+        .attr('y', d => yScale(d.count))
+        .attr('width', xScale.bandwidth())
+        .attr('height', d => 400 - yScale(d.count));
 
-    dots.exit().remove();
+    bars.exit().remove();
 }
-
-// Button click handler to apply filters to the chart
-document.getElementById('applyChartFilters').addEventListener('click', () => {
-    // Get the filter values (for example, user might want to filter by decade or rating)
-    const selectedDecade = document.getElementById('decadeSelect').value;
-    const selectedRating = document.getElementById('ratingSelect').value;
-
-    // Example: Update the chart data based on selected filters
-    let filteredData = defaultChartData.filter(d => {
-        const decadeMatch = selectedDecade ? d.decade === parseInt(selectedDecade) : true;
-        const ratingMatch = selectedRating ? d.rating >= parseFloat(selectedRating) : true;
-        return decadeMatch && ratingMatch;
-    });
-
-    // Update the chart with filtered data
-    setupChart(filteredData);
-});
-
-// Initial chart load with default data
-setupChart(defaultChartData);
-
