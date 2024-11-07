@@ -1,6 +1,6 @@
 const apiKey = '802ee322c8121a46593708eaee31a51d';
 
-let selectedGenres = ['35']; // Comedy genre ID
+let selectedGenres = ['35']; // default:comedy
 
 // Handle genre button clicks
 document.querySelectorAll('.genre-btn').forEach(button => {
@@ -13,7 +13,7 @@ document.querySelectorAll('.genre-btn').forEach(button => {
             selectedGenres.push(genreId);
             event.target.classList.add('selected');
         }
-        fetchAndDisplayMovies();  // Update the movie display and chart when a genre is selected
+        fetchAndDisplayMovies();
     });
 });
 
@@ -92,20 +92,20 @@ function displayMovies(movies) {
 document.getElementById('applyFilters').addEventListener('click', async () => {
     const loadingIndicator = document.getElementById('loading');
     if (loadingIndicator) {
-        loadingIndicator.style.display = 'block'; // Show loading indicator
+        loadingIndicator.style.display = 'block';
     }
     const movies = await fetchMovies();
     if (loadingIndicator) {
-        loadingIndicator.style.display = 'none'; // Hide loading indicator after fetching
+        loadingIndicator.style.display = 'none';
     }
     displayMovies(movies);
-    updateChart(movies); // Update the chart with filtered movies
+    updateChart(movies);
 });
 
 // Chart section logic
 async function updateChart(movies = []) {
     if (movies.length === 0) {
-        movies = await fetchMovies();  // Fetch data if no movies are passed
+        movies = await fetchMovies();
     }
 
     // Filter for comedy movies (genre ID 35)
@@ -114,7 +114,7 @@ async function updateChart(movies = []) {
     // Group movies by release year
     const moviesByYear = {};
     comedyMovies.forEach((movie) => {
-        const year = movie.release_date.split('-')[0]; // Extract the release year
+        const year = movie.release_date.split('-')[0];
         if (!moviesByYear[year]) {
             moviesByYear[year] = 0;
         }
@@ -130,12 +130,12 @@ async function updateChart(movies = []) {
     const xScale = d3.scaleBand().range([0, 600]).padding(0.1);
     const yScale = d3.scaleLinear().range([400, 0]);
 
-    const svg = d3.select('#ratingsChart').attr('width', 800).attr('height', 450); // Increased height for titles
+    const svg = d3.select('#ratingsChart').attr('width', 800).attr('height', 450);
 
     xScale.domain(chartData.map(d => d.year));
     yScale.domain([0, d3.max(chartData, d => d.count)]);
 
-    svg.selectAll('*').remove(); // Clear previous chart
+    svg.selectAll('*').remove(); 
 
     // Add Chart Title
     svg.append('text')
