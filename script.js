@@ -117,10 +117,15 @@ function filterMoviesByGenre(genre) {
     displayMovies(filteredMovies); // Replace with your function that displays movies on the page
 }
 
-// Call the function on page load to show comedy movies
-document.addEventListener('DOMContentLoaded', () => {
-    filterMoviesByGenre('Comedy');
+document.addEventListener('DOMContentLoaded', async () => {
+  // Set default genre to '35' for Comedy
+  selectedGenres = ['35'];
+
+  // Fetch and display movies for the default genre (Comedy)
+  const movies = await fetchMovies();
+  displayMovies(movies);
 });
+
 
 // Optional: Add event listener to make sure genre buttons work as intended
 document.querySelectorAll('.genre-filter-button').forEach(button => {
