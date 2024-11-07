@@ -1,143 +1,61 @@
-/* General styles for the page */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #d7e9f8;
-}
-
-
-/* dropdown menus */
-select {
-    border: 2px solid rgb(210, 209, 209);
-    font-size: 16px;
+    background-color: #bad6ee;
+  }
+  
+  
+  /* dropdown menus */
+  select {
+    border: 2px solid #b0b0b0;
+    padding: 6px 10px;
+    font-size: 14px;
     border-radius: 5px;
     background-color: #f9f9f9;
     color: #333;
-}
-
-select:focus {
-    border-color: #b2b2b2;
+  }
+  
+  select:focus {
+    border-color: #858785;
     outline: none;
-}
-
-/* Background color for the entire page */
-header {
-    background-color: #372a48;
+  }
+  
+  /* Background color for the entire page */
+  header {
+    background-color: #3a2c3f;
     color: #fff;
-    padding: 10px;
-    text-align: center;
+    padding: 15px;
     font-size: 24px;
-}
-
-.container {
+    text-align: center;
+  }
+  
+  .container {
     display: flex;
     max-width: 1200px;
     margin: auto;
     padding: 20px;
-}
-
-.filters {
+  }
+  
+  .filters {
     flex: 1;
     margin-right: 20px;
     background: #fff;
     padding: 20px;
     border-radius: 5px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-/* Styling for filter group sections */
-.filter-group {
+  }
+  
+  .filter-group {
     margin-bottom: 20px;
-}
-
-.genre-buttons {
+  }
+  
+  .genre-buttons {
     display: flex;
     flex-wrap: wrap;
-}
-
-.genre-btn {
-  padding: 10px 20px;
-  background-color: #ccc;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-.genre-btn.selected {
-  background-color: #007bff;
-  color: white;
-}
-
-#chart {
-  width: 100%;
-  height: 100%;
-}
-
-.tooltip {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
-  background-color: white;
-  border: solid 1px #ccc;
-  border-radius: 5px;
-  padding: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-svg {
-  width: 100%;
-  height: 100%;
-}
-
-.axis path,
-.axis line {
-  fill: none;
-  shape-rendering: crispEdges;
-}
-
-.axis text {
-  font-size: 14px;
-  font-weight: bold;
-}
-
-.error {
-    color: red;
-    text-align: center;
-    padding: 20px;
-}
-
-input {
-    border: 2px solid rgb(210, 209, 209);
-    padding: 8px 10px; 
-    font-size: 14px;
-    border-radius: 8px;
-    background-color: #f9f9f9;
-    color: #333;
-}
-
-input:focus {
-    border-color: #b2b2b2;
-    outline: none;
-}
-
-
-.chart-section {
-    margin-top: 20px;
-    padding: 50px;
-    background-color: #fff;
-    border-radius: 5px;
-    display: flex;
-    max-width: 1100px;
-    margin: auto;
-}
-
-.chart-genre-buttons {
-    margin-bottom: 20px;
-}
-
-.chart-genre-btn {
+  }
+  
+  .genre-btn {
     margin: 5px;
     padding: 10px 15px;
     border: none;
@@ -145,13 +63,96 @@ input:focus {
     color: black;
     cursor: pointer;
     border-radius: 5px;
-}
-
-.movie-grid {
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-}
-
-button {
+  }
+  
+  .genre-btn.selected {
+    background: #b2b2b2;
+  }
+  
+  #movieContainer {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 20px;
+    flex: 3;
+  }
+  
+  .movie-card {
+    background: white;
     border-radius: 5px;
-    padding: 8px 10px; 
-}
+    padding: 10px;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  .movie-card img {
+    max-width: 100%;
+    border-radius: 5px;
+  }
+  
+  .movie-title {
+    font-weight: bold;
+    margin-top: 10px;
+  }
+  
+  .movie-year {
+    color: #666;
+  }
+  
+  .error {
+    color: red;
+    text-align: center;
+    padding: 20px;
+  }
+  
+  .chart-section {
+    background-color: #fff;
+    display: flex;
+    max-width: 1160px;
+    margin: auto;
+    padding: 20px;
+    border-radius: 5px;
+  }
+  
+  .chart-genre-buttons {
+    margin-bottom: 20px;
+  }
+  
+  .chart-genre-btn {
+    margin: 5px;
+    padding: 10px 15px;
+    border: none;
+    background: #dedede;
+    color: black;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+  
+  input {
+    border: 2px solid #b0b0b0;
+    padding: 6px 10px;
+    font-size: 14px;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+    color: #333; 
+  }
+  
+  input:focus {
+    border-color: #858785; 
+    outline: none; 
+  }
+  
+  button {
+    margin: 5px;
+    padding: 10px 15px;
+    border: none;
+    background: #dedede;
+    color: black;
+    cursor: pointer;
+    border-radius: 5px;
+  
+  }
+  
+  .movie-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+  
