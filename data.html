@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Visualization</title>
+    <link rel="stylesheet" href="data.css">
+</head>
+<body>
+    <header>
+        <h1>Data Visualization</h1>
+        <button id="toggle-page">Go to Movie Filter</button>
+    </header>
+    
+  <div id="chart-container">
+    <section class="chart-section">
+      <h2>Movie Budget vs Revenue Scatter Plot</h2>
+      <div id="filters">
+        <button class="genre-btn selected" data-genre="35">Comedy</button>
+        <button class="genre-btn" data-genre="28">Action</button>
+        <button class="genre-btn" data-genre="18">Drama</button>
+      </div>
+      <div id="chart"></div>
+    </section>
+  </div>
+  
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="data.js"></script>
+</body>
+</html>
