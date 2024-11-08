@@ -1,6 +1,6 @@
 ## **Project Overview**
 
-- This website will be able to display data about popular tv shows/movies, and can filter it by different attributes such as ratings, the date is released, the genre, etc.
+- This website will be able to display data about movies from the TMDb API. Users will be able to filter by different attributes such as ratings, the date is released, the genre, etc. Users will also be ablel to change the data presentation. 
 
 ## **Project Members**
 
@@ -21,13 +21,13 @@
  
 ## **Live Demo**
 
-- https://burly-lily-wasp.glitch.me/
+- https://medp331-ziyuaaron-project2.glitch.me/
 
 ## **Credits**
 
-- List any third-party assets used in the project (e.g., sound effects, images, fonts) and provide proper attribution.
-- Acknowledge any resources, tutorials, or references you used to help complete the project.
+- All the images were provided from the API itself.
+- We needed help from youtube tutorials for D3 and chatgpt to fix any errors and give suggestions in terms of fetching certain endpoints. 
 
 ## **Future Enhancements**
 
-- List any future enhancements you would like to make or improve given more time.
+- We wanted to make a toggle where we can switch between the scatterplot and the movie posters for a more seamless transition, but the code got too messy when combining the graph code and the main webpage code, so we resorted to making two separate html's and linking it to each other. 
