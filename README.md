@@ -30,4 +30,5 @@
 
 ## **Future Enhancements**
 
-- We wanted to make a toggle where we can switch between the scatterplot and the movie posters for a more seamless transition, but the code got too messy when combining the graph code and the main webpage code, so we resorted to making two separate html's and linking it to each other. 
+- We wanted to make a toggle where we can switch between the scatterplot and the movie posters for a more seamless transition, but the code got too messy when combining the graph code and the main webpage code, so we resorted to making two separate html's and linking it to each other.
+- We also wanted to add fancy animations with D3 and possibly incorporate GSAP to make it much more interactive.
